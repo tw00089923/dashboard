@@ -178,3 +178,55 @@ function draw_plot1(div){
 
     return Plotly.newPlot(div, data, layout, { displayModeBar: false ,scrollZoom: false,editable: false});
 }
+
+
+function draw_hplot(div){
+
+
+    var trace0 = {
+        type: 'bar',
+        x: [1, 2, 3, 5.5, 10],
+        y: [10, 8, 6, 4, 2],
+        width: [0.8, 0.8, 0.8, 0.8, 0.8],
+        orientation: 'h'
+      }
+    var data = [trace0];
+    var layout = {
+        hovermode: false,
+        autosize:true,
+        xaxis: {
+        autorange: true,
+        showgrid: false,
+        zeroline: false,
+        showline: false,
+        autotick: true,
+        fixedrange : true,
+        ticks: '',
+        showticklabels: false
+      },
+      yaxis: {
+        autorange: true,
+        showgrid: false,
+        zeroline: false,
+        showline: false,
+        autotick: true,
+        fixedrange : true,
+        ticks: '',
+        showticklabels: false
+      },
+      margin:{
+        l:0,r:0,b:10,t:10,pad:10
+      },
+      plot_bgcolor:"#343a40",
+      height:120
+    };
+
+
+    return Plotly.newPlot(div, data, layout, { displayModeBar: false ,scrollZoom: false,editable: false});
+    
+    // Function for vertival
+    
+
+
+
+}

@@ -30,7 +30,6 @@ auth_filed={
     "email": fields.String ,
     "password": fields.String ,
 }
-
 parse = reqparse.RequestParser()
 parse.add_argument('email', type=str, required=True)
 parse.add_argument('password',type=str, required=True)
@@ -39,7 +38,7 @@ parse.add_argument('password',type=str, required=True)
 class Auth(Resource):
     @marshal_with(auth_filed)
     def get(self):
-        # curl http://127.0.0.1/api/v1/auth
+        # curl http://127.0.0.1:8080/api/v1/auth
         return User.query.order_by(User.id).all()
     def post(self):
         #json_data = request.get_json(force=True)
@@ -55,13 +54,13 @@ class Auth(Resource):
             return {"message":"Email is exist"}, 201
         else:
             return {"message":"ok"}, 401
-
-        # curl http://127.0.0.1/8080 -d "task=something new" -X POST -v
-
-
+        # curl http://127.0.0.1:8080/api/v1/auth -d "task=something new" -d "email= ,password=" -X POST -v 
 class Post(Resource):
     def get(self):
+        
         return {"love":"love"}
+
+
 
 api.add_resource(Auth,'/api/v1/auth')
 api.add_resource(Post,'/api/v1/board')

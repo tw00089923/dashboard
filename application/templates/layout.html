@@ -42,7 +42,7 @@
               --------------------------------------------
             </div>
             <ul class="nav-link">
-              {% for nav in [ {"name":"Home","url":'#',"icon":"fa fa-home "}, {"name":"Setting","url":'#',"icon":"fa fa-cogs "}, {"name":"Support","url":'#',"icon":"fa fa-question-circle"}] %}
+              {% for nav in [ {"name":"Home","url":'#',"icon":"fa fa-home "}, {"name":"Setting","url":'#',"icon":"fa fa-cogs "},{"name":"Api doc","url":'#',"icon":"fa fa-file "}, {"name":"Support","url":'#',"icon":"fa fa-question-circle"}] %}
                 <li class="" style="list-style: none;font-size: 18px;"> 
                     <a class="nav-link p-2 text-white " href="{{nav.url}}" id="v-pills-settings-tab" data-toggle="pill" href="#v-pills-settings" role="tab" aria-controls="v-pills-settings" aria-selected="false">
                         <i class="{{nav.icon}} p-1" id="nav_icon"></i>
@@ -121,7 +121,7 @@
                               <th class="" scope="col"> id </th>
                               <th scope="col"> Temperature </th>
                               <th scope="col"> Humidity </th>
-                              <th scope="col"> Type </th>
+                              <th scope="col"> Source </th>
                             </tr>
                           </thead>
                           <tbody  style="height:220px;overflow-y: scroll">
@@ -153,9 +153,15 @@
                   {% endfor %}
                 </ul>
             </div>
-            <div class="card col-md m-2 bg-dark"style="height: 150px;display: inline-block;">
-                <form class="" action="/dashboard" method="POST" >
-                </form>  
+            <div class="card col-md m-2 bg-dark"style="height: 150px;display: inline-block;overflow-y: scroll">
+              <!--
+                <form class="" action="/dashboard" method="POST" ></form>
+              -->
+              <h5 class="text-white text-center mt-1"> Percertage </h5>
+              <div id="myDiv_5">
+
+              </div>
+              
             </div>
         </div>
       </div>
@@ -196,6 +202,9 @@
   });
 </script>
 
+<script>
+  draw_plot1("myDiv_1");
+</script> 
 <script >
   var x = {{ time | safe}};
   var y = {{  sensor | map ( attribute = 'temperature' )| list }};
@@ -215,8 +224,11 @@
 <script>
   chart_geo("myDiv_4");
 </script>
+
 <script>
-draw_plot1("myDiv_1");
+ draw_hplot("myDiv_5");
 </script> 
+
+
 {% endblock javascript %}
 </html>
