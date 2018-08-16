@@ -1,0 +1,52 @@
+
+
+{% macro nav_link(endpoint, text) %}
+    {% if request.endpoint.endswith(endpoint) %}
+        <li class="active"><a href="{{ url_for(endpoint) }}">{{text}}</a></li>
+    {% else %}
+        <li><a href="{{ url_for(endpoint) }}">{{text}}</a></li>
+    {% endif %}
+{% endmacro %}      
+
+
+
+{% macro graph_title(head,title,symbol,subtitle) %}
+
+    {% if head and title ,subtitle %}
+    <div class="container-fuild">
+        <p class="text-white mt-1 small">{{head}}</p>
+        <h3 class="text-white m-0"> {{ title |int}}  <small style="font-size: 6px">{{symbol}}</small> </h3> 
+        <p class="text-primary pt-3 small">{{subtitle}}</p>
+    </div>
+    {% else %}
+    <div class="row">
+            <ul class="list-group">
+                <li class="list-item"> 1</li>
+                <li class="list-item"> 2</li>
+                <li class="list-item"> 3</li>
+            </ul>
+        </div>
+    {% endif %}
+{% endmacro %}   
+
+
+{% macro rating_star(head,title,subtitle) %}
+    {% for index in range(2) %}
+    <div class="form-group row text-center">
+    <label class=" col-sm-2 col-form-label ml-2 text-secondary">Style</label>
+    <div class="rating col-md-6 col-sm-6 mt-1 text-primary" value={{index}}   }>
+        {%  for i in range(1,6) %}
+        <i class="fa fa-star-o star" aria-hidden="true" value={{i}} id="star_{{index}}" ></i>
+        {% endfor %}
+    </div>
+    <input type="hidden" name="star_{{index}}" id="star_value_{{index}}" value=0 >
+    </div>
+    {% endfor %}
+{% endmacro %}
+
+
+{% macro macrotable(data) %}
+ 
+
+
+{% endmacro %}

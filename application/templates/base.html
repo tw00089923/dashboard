@@ -1,0 +1,68 @@
+
+
+
+<!DOCTYPE html>
+
+{% extends "layout.html" %}
+
+{% block title %}
+
+{% endblock title %}
+{% block style %}
+  {{super()}}
+{% endblock style %}
+{% block content %}
+  <br>
+  <div class="container-fluid">
+    <div class="row ">
+      <div class="col-md-7 m-2 card">
+        <h1 class="text-primary">photo</h1>
+        <img src="" alt="Image Placeholder">
+      </div>
+      <div class="card col-md m-2 p-0">
+            <form class="" action="/helo" method="POST">
+              <div class="form-group text-center bg-primary text-white"> 風格確認 </div>
+              {% for index in range(3) %}
+              <div class="form-group row text-center">
+                <label class=" col-sm-2 col-form-label ml-2 text-secondary">Style</label>
+                <div class="rating col-md-6 col-sm-6 mt-1 text-primary" value={{index}}   }>
+                  {%  for i in range(1,6) %}
+                  <i class="fa fa-star-o star" aria-hidden="true" value={{i}} id="star_{{index}}" ></i>
+                  {% endfor %}
+                </div>
+                <input type="hidden" name="star_{{index}}" id="star_value_{{index}}" value=0 >
+              </div>
+              {% endfor %}
+              <div class="form-group text-right mr-1">
+                  <button class="form-group btn btn-primary mr-2" type="submit">
+                    Submit
+                  </button>
+              </div>
+            </form>  
+      </div>
+    </div>
+  </div>
+
+{% block javascript %}
+{{super()}}
+<script type="text/javascript">
+  $('.fa').on('click',
+    function(){
+      var value = $(this).attr("value");
+      star = $(this).parent().children(('.star'))
+      for(i=0;i<star.length;i++){
+        $(star[i]).removeClass('fa-star');
+        $(star[i]).addClass('fa-star-o');
+      }
+      for(i=0;i<value;i++){
+        $(star[i]).removeClass('fa-star-o');
+        $(star[i]).addClass('fa-star');
+      }
+      var star_p = $(this).parent().attr("value");
+      $("#star_'"+star_p+"' ").attr("value",value);
+    }
+  );
+</script>
+{% endblock javascript %}
+{% endblock content %}
+
