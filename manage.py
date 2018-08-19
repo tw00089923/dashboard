@@ -8,8 +8,6 @@ from app import db, app
 
 from application.models import User, Task, Sensor
 
-
-
 app.app_context().push()
 
 manager = Manager(app)
@@ -60,6 +58,7 @@ def insert_db_all():
         db.session.add(sensor)
         db.session.commit()
     db.session.close()
+
 
 @manager.option('-n', '--name', dest='name', default='joe')
 @manager.option('-u', '--url', dest='url', default=None)

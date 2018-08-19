@@ -12,7 +12,7 @@ class Config(object):
     CSRF_ENABLE = True
     SECRET_KEY = "dsff" #os. getenv("SECRET")
     SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(basedir,"sqlalchemy_main.db")
-
+    JSON_AS_ASCII = False # 配置中文
 class Development(Config):
     """
     開發人員環境

@@ -1,4 +1,5 @@
 from app import db, flask_bcrypt
+from sqlalchemy.sql import expression
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -6,6 +7,9 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True,nullable=False)
     email = db.Column(db.String(120), unique=True,nullable=False)
     password = db.Column(db.String(255))
+    is_authenticated = db.Column(db.Boolean, default=False, server_default="true")
+    is_active = db.Column(db.Boolean, default=False, server_default="true")
+    is_anonymous = db.Column(db.Boolean, default=False, server_default="true")
     def __repr__(self):
         return "<User %r>"%self.username
     def __init__(self, username, email, password):
@@ -16,6 +20,17 @@ class User(db.Model):
         return flask_bcrypt.generate_password_hash(password)
     def check_password(self, password):
         return flask_bcrypt.check_password_hash(self.password, password)
+    def get_id(self):
+        return self.id
+    def save_to_db(self):
+        db.session.add(self)
+        db.session.commit()
+    @classmethod
+    def find_by_username(cls, username):
+        return cls.query.filter_by(username=username).first()
+    @classmethod
+    def find_by_id(cls, _id):
+        return cls.query.filter_by(id=_id).first()
 
 
 class Task(db.Model):
@@ -29,7 +44,18 @@ class Task(db.Model):
     def __init__(self, name, classifer):
         self.name = name 
         self.classifer = classifer
-
+    def json(self):
+        return {
+            "id":self.id,
+            "name":self.name,
+            "classifer":self.classifer
+        }
+    @classmethod
+    def find_by_name(cls,name):
+        return cls.query.filter_by(name=name).first()
+    @classmethod
+    def find_by_id(cls, _id):
+        return cls.query.filter_by(id=_id).first()
 
 class Sensor(db.Model):
     __tablename__ = "sensor"
