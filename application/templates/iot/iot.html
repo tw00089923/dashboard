@@ -1,0 +1,144 @@
+
+{% extends "layout.html" %}
+
+
+
+{% block content%}
+ <!-- Title navbar -->
+ <div class="row"> 
+        <div class="col-md-3 d-none d-md-block">
+            <h1 class="pl-2 text-info"><a href="/"> DashBoard</a></h1> 
+        </div>
+        <div class="ml-auto d-none d-md-block pt-2 pr-2 " style=" right: 0px;">
+          {% if current_user.username%}
+          <button class="btn btn-secondary" id="create_item"><a class="text-white" href="/logout">{{current_user.username}}</a></button>
+          {% else %}
+          <button class="btn btn-secondary" id="create_item"> + Create New Case</button>
+          {% endif %}
+        </div>
+      </div>
+      <!--  上部分 區塊 -->
+      <div class="row justify-content-between " id="content_top" >
+        <!-- 上 : 左邊 -->
+        <div class="card col-md m-2 d-block d-xs-none bg-dark" style=" display: block;overflow: hidden ;" > 
+          <div class="row ">
+            <div class="col-4">{{ graph_title("Run time","123","Days","more detail") }}</div>
+            <div class="col-8 bg-dark" >  
+              <div id="myDiv_1"></div>
+            </div>
+          </div> 
+        </div>
+        <!-- 上 : 中間 -->
+        <div class="card col-md m-2 d-block d-xs-none bg-dark" style=" display: block;overflow: hidden ;"> 
+          <div class="row">
+            <div class="col-4">{{ graph_title("Temperature",sensor|sum(attribute='temperature')/ sensor|count,"℃","more detail") }}</div>
+            <div class="col-8" >  
+              <div id="myDiv_2"></div>
+             </div>
+          </div> 
+        </div>
+        <!-- 上 :  右邊 -->
+        <div class="card col-md m-2 d-block d-xs-none bg-dark" style=" display: block;overflow: hidden ;"> 
+          <div class="row">
+            <div class="col-4">{{ graph_title("Humidity",sensor|sum(attribute='humidity')/ sensor|count |int *100,"RH","more detail") }}</div>
+            <div class="col-8" >  
+              <div id="myDiv_3"></div>
+            </div>
+           </div> 
+        </div>
+      </div>
+      <!--  中間部分 區塊 -->
+      <div class="row mt-1 " id="content_middle">
+        <!-- Middle Pie Chart part -->
+        <div class="col-md-5 m-2 bg-dark card">
+          <p class="text-info text-center m-1 ">  Distribution </p>
+          <div id="piechart" class="">
+          </div>
+        </div>
+        <!-- Middle Table -->
+        <div class="col-md m-2 p-0 bg-dark card" >                   
+          <table class="ml-1 table table-borderless table-responsive text-white text-center table-hover" style="overflow:auto;" > 
+            <thead>
+              <tr class="text-info">
+                <th class="" scope="col"> id </th>
+                <th scope="col"> Temperature </th>
+                <th scope="col"> Humidity </th>
+                <th scope="col"> Source </th>
+                <th scope="col"> datetime </th>
+              </tr>
+            </thead>
+            <tbody  style="overflow-y: scroll;">
+                {% for item in sensor %}
+                <tr>
+                    <th scope="row" style="width: 15%">{{item.id}}</th>
+                    <td style="width: 20%">{{item.temperature}} ℃</td>
+                    <td style="width: 20%">{{item.humidity |round(1,"floor") * 100 }} RH</td>
+                    <td style="width: 25%">{{item.sensor_id}}</td>
+                    <td style="width: 15%">{{item.time.strftime('%Y-%m-%d') }}</td>
+                </tr>
+                  {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+
+      </div>
+
+      <!--  下部分 區塊 -->
+      <div class="row mt-1 mh-25" id="content_bottom" >
+          <!-- Logging Part -->
+          <div class="card col-md m-2 bg-dark " style="overflow-y: scroll">
+              <h5 class="text-info text-center mt-1"> Logging </h5>
+              <ul class="list-unstyled bg-dark mp-0" >
+                {% for i in range(4)%}
+                  <li class="list-group-item bg-dark border-0 text-white " style="padding: 0px;" >
+                      {{i}} :  2018.01.20  id_121   127.1.2.3  Taiwain login --  
+                  </li>
+                {% endfor %}
+              </ul>
+          </div>
+          <!-- Pecentage Part --> 
+          <div class="card col-md m-2 bg-dark"style="display: inline-block;overflow-y: scroll">
+
+            <h5 class="text-info text-center mt-1"> Percertage </h5>
+           
+            <div id="myDiv_5">
+            </div>
+            
+          </div>
+      </div>
+      
+
+{% endblock %}
+
+{% block javascript %}
+{{super()}}
+<script>
+draw_plot1("myDiv_1");
+</script> 
+<script >
+var x = {{ time | safe}};
+var y = {{  sensor | map ( attribute = 'temperature' )| list }};
+drawline( x , y, "#myDiv_2");
+</script>
+
+<script>
+        var x = {{time|safe}};
+        var y = {{  sensor | map ( attribute = 'humidity' )| list }};
+        
+        drawline( x , y, "#myDiv_3");
+      </script>
+<script>
+  var x = {{ sensor_id_count | safe}};   //{{  sensor | map ( attribute =  'sensor_id' )| list }};
+  var y =  {{ sensor_id | safe}};  // {{ sensor_id | safe}}; 
+  var width = $("#piechart").resize(function(){
+    return $("#content_middle").width;
+  });
+
+  piechart(x,y,"#piechart",width);
+</script>
+      
+      <script>
+       draw_hplot("myDiv_5");
+      </script> 
+{% endblock %}

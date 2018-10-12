@@ -6,13 +6,20 @@
     background-color: aliceblue;
 
 }
-#content{
+#content {
+
     height: 100vh;
     background-color: black;
 }
+#content_middle {
+
+    height: 50vh;
+    background-color: black;
+}
+
 #content_bottom {
 
-    height: 100px;
+    height: 25vh;
 }
 
 
@@ -28,7 +35,14 @@ html, body {
 .modebar{
     display: none !important;
 }*/
-
 .list-group li:nth-child(2){
     border-top: 0 none;
   }
+
+#nav_list_item{
+    list-style: none;font-size: 12px;
+}
+
+#maintainer {
+    height: 25px;width: 25px
+}

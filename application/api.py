@@ -3,7 +3,7 @@ from flask_restful import Resource, marshal_with, fields, reqparse, marshal
 
 from app import api
 
-from application.models import User, Task
+from application.models import User, Task, CwbModel
 
 import os
 
@@ -40,45 +40,123 @@ task_field={
     "classifer" : fields.String
 }
 
-parse = reqparse.RequestParser()
-parse.add_argument('username', type=str, required=True)
-parse.add_argument('password',type=str, required=True)
 
+class Register(Resource):
+    def post(self):
+        parse = reqparse.RequestParser()
+        parse.add_argument('username',type=str, required=True)
+        parse.add_argument('email',type=str, required=True)
+        parse.add_argument('password',type=str, required=True)
+        args = parse.parse_args()
+        user = User.query.filter_by(username=args["email"]).first()
+        if user :
+            return { "message" : "The email is exist" }, 201
+        else:
+            user = User(username=args["username"], email=args["password"], password=args["password"])
+            user.save_to_db()
+            return { "message" : "Create this account successfully" }, 200
 
 class Auth(Resource):
-    
-    @marshal_with(auth_filed)
     def get(self):
-        # curl http://127.0.0.1:8080/api/v1/auth
-        user = User.query.order_by(User.id).all()[0]
-
-        return User.query.order_by(User.id).all()
-    @jwt_required
-    def post(self):
-        #json_data = request.get_json(force=True)
-        #un = json_data["username"] 
-        #pw = json_data["password"]
-        #return jsonify(u=un,p=pw)
+        # curl http://127.0.0.1:8080/api/v1/auth -d "username=auwit0205@gmail.com" -d "password=812323"
+        parse = reqparse.RequestParser()
+        parse.add_argument('username',type=str, required=True)
+        parse.add_argument('password',type=str, required=True)
         args = parse.parse_args()
-        # 尋找第一個符合的條件 
         user = User.query.filter_by(username=args["username"]).first()
-        if user :
-            print("OK")
-            return {"message":"Email is exist"}, 201
-        else:
-            return {"message":"ok"}, 201
-        # curl http://127.0.0.1:8080/api/v1/auth -d "task=something new" -d "email=auwit0205@gmail.com " "password=812323" -X POST -v 
+        if user and user.check_password(args["password"]):
+            return marshal(user,auth_filed)
+        else :
+            return None
+    def post(self):
+        parse = reqparse.RequestParser()
+        parse.add_argument('email',type=str, required=True)
+        parse.add_argument('password',type=str, required=True)
+        args = parse.parse_args()
+        user = User.query.filter_by(email=args["email"]).first()
+        print(user)
 
-    #curl -X GET http://localhost:8080/api/v1/board -H "Authorization: JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1MzQ2Njc0ODIsImlhdCI6MTUzNDY2NzE4MiwibmJmIjoxNTM0NjY3MTgyLCJpZGVudGl0eSI6MX0.-7cv141HOOytjUnjIKgR8FeBlqHerN-_3rBSSNUZrko"
+        if user and user.check_password(args["password"]) :
+            return { "success" : "true" }, 200
+        elif user is None:
+            return  { "type":"email", "message" : "The email is not exist " }, 201
+        else:
+            return  { "type":"password", "message" : "The password is wrong" }, 201
+        #curl http://127.0.0.1:8080/api/v1/auth -d "task=something new" -d "email=auwit0205@gmail.com " "password=812323" -X POST -v 
+        #curl -X GET http://localhost:8080/api/v1/board -H "Authorization: JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1MzQ2Njc0ODIsImlhdCI6MTUzNDY2NzE4MiwibmJmIjoxNTM0NjY3MTgyLCJpZGVudGl0eSI6MX0.-7cv141HOOytjUnjIKgR8FeBlqHerN-_3rBSSNUZrko"
 class Post(Resource):
-    @jwt_required()
+    #@jwt_required()
     def get(self): 
-        #print(current_identity)
         task = Task.find_by_id(1).json()
         return marshal(task,task_field)
     @jwt_required()
     def post(self):
-        return {"message":"ok"}
+        parse = reqparse.RequestParser()
+        parse.add_argument('name',type=str, required=True)
+        parse.add_argument('classifer',type=str, required=True)
+        args = parse.parse_args()
+        task = Task(name=args["name"],classifer=args["classifer"])
+        tasks = Task.query.all()
+        try :
+            task.save_to_db()  
+            return {'success':"true"},201
+        except : 
+            return marshal( tasks,task_field), 403
+
+
+cwb_field = {
+    # locationName String
+    # parameterName String
+    # parameterValue String 
+    # parameterUnit String 
+    # startTime datetime
+    # endTime datetime
+    "id": fields.Integer,
+    "locationName": fields.String,
+    "elementName": fields.String,
+    "startTime": fields.DateTime,
+    "endTime": fields.DateTime,
+    "parameterName": fields.String,
+    "parameterValue": fields.String,
+    "parameterUnit": fields.String,
+}
+
+
+class CwbHttp(Resource):
+    '''
+    # Wx 天氣現象
+    # PoP 降雨機率 
+    # CI 舒適度
+    # MinT 最低溫度
+    # MaxT 最高溫度
+    '''
+    def get(self,weathertype):
+        Alltype = [ "Wx", "Pop", "CI", "MinT", "MaxT" ]
+        if weathertype in Alltype :
+            cwb = CwbModel.query.filter(CwbModel.elementName == weathertype).all()
+            print(cwb)
+            #return {"seccuss":"true"}, 200
+            return marshal(cwb, cwb_field), 200
+
+        else :
+            return {"success":"false","result":"Query type is error"}
 
 api.add_resource(Auth,'/api/v1/auth')
+api.add_resource(Register,'/api/v1/auth/create')
 api.add_resource(Post,'/api/v1/board')
+api.add_resource(CwbHttp,'/api/v1/weather/<weathertype>')
+
+
+'''
+
+If you are using Flask-Restful like me, it is also possible this way:
+
+api.add_resource(UserAPI, '/<userId>', '/<userId>/<username>', endpoint = 'user')
+a then in your Resource class:
+
+class UserAPI(Resource):
+
+  def get(self, userId, username=None):
+    pass
+
+'''

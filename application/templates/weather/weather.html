@@ -1,0 +1,136 @@
+
+
+{% extends "layout.html" %}
+
+
+
+{% block content%}
+
+<div class="">
+    <!-- TITLE -->
+    <div class="row mt-3 ml-4 mr-4">
+        <div class="text-white mr-auto"> 
+            <a class="text-white" href="">台灣氣象站</a>
+        </div>
+        <div class="text-white ml-auto ">
+          資料庫日期 {{now}}
+        </div> 
+    </div>
+    <!-- 氣溫資訊 -->
+    <div class="row justify-content-between m-1" id="content_top" >
+            <!-- 上 : 左邊 -->
+            <div class="card col-md m-4 d-block d-xs-none bg-dark" style=" display: block;overflow: hidden ;" > 
+              <div class="row ">
+                <div class="col-4 text-white" style="font-size: 10px">平均最低氣溫</div>
+                <div class="col-8 bg-dark" >  
+                </div>
+              </div> 
+            </div>
+            <!-- 上 : 中間 -->
+            <div class="card col-md m-4 d-block d-xs-none bg-dark" style=" display: block;overflow: hidden ;"> 
+              <div class="row">
+                <div class="col-4 text-white" style="font-size: 10px">平均最高氣溫</div>
+                <div class="col-8" >  
+
+                </div>
+              </div> 
+            </div>
+            <!-- 上 :  右邊 -->
+            <div class="card col-md m-4 d-block d-xs-none bg-dark" style=" display: block;overflow: hidden ;"> 
+              <div class="row">
+                <div class="col-4 text-white" style="font-size: 10px">平均降雨機率</div>
+                <div class="col-8" >  
+
+                </div>
+               </div> 
+            </div>
+          </div>
+
+    <!-- 地圖資訊  -->
+    <div class="bg-black mt-1" style=" height:450 px ;overflow: hidden;">
+        <div class="row">
+            <div class="col-md-5 col-lg-5  bg-dark card mx-auto">
+                <div class="card-body">
+                    <div class="text-center text-white card-title">
+                        Tawain 今日最低氣溫
+                     </div>
+                     <div class="card-text">
+                        <div id="mydiv_geo"></div> 
+                     </div>
+                </div>        
+            </div>
+            <div class="col-md-5 col-lg-5 bg-dark card mx-auto" >
+                <div class="card-body m-2">
+                    <div class="text-center text-white card-title">
+                        Tawain 今日最高氣溫
+                    </div>
+
+                    <div class="card-text">
+                            <div id="mydiv_geo_maxT"></div> 
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+           
+    </div>
+    
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+
+<script type="text/javascript" src="{{ url_for('static', filename='javascript/map.js') }}"></script> 
+
+<!--
+
+<script>
+var minT = {{ minT | map(attribute ="parameterName") | list | tojson }};
+console.log(minT.map(function(x){return parseFloat(x);}));
+</script>
+-->
+
+
+<script>
+
+
+Plotly.d3.json("{{ url_for('static', filename='json/COUNTY_MOI_1070516.geojson') }}",function(res){
+    
+    var name = res["features"].map(function(x){return x["properties"]["COUNTYNAME"]});
+
+    function find_country(row,country,offset=true){
+        if (offset == true){
+            return row.filter(function(y){
+                return y["properties"]["COUNTYNAME"] === country;
+            });
+        }else{
+            return row.filter(function(y){
+                return y["properties"]["COUNTYNAME"] !== country;
+            });
+        }
+    }
+    var seperate_country = [];
+    for (var b = 0 ; b < res["features"].length ; b++ ){
+        var res_orgin = {"name":res["name"],"type":res["type"],features:[]};
+        res_orgin["features"] = [res["features"][b]] ;
+        seperate_country.push(res_orgin);
+    }
+    //console.log(find_country(res["features"],"新竹縣",false));
+    /*
+    console.log(res["features"].map(function(x){
+        return x["properties"];
+    }));
+    */
+   var div_jquery = $("#mydiv_geo");
+    chart_geo(
+        "mydiv_geo",
+        height=div_jquery.height,
+        width=div_jquery.width,
+        seperate_country
+    );
+
+});
+</script>
+
+{% endblock %}

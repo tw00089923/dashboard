@@ -1,6 +1,6 @@
 from app import app
 
-from flask import redirect, render_template, url_for, request, jsonify, flash, make_response, session, Response
+from flask import redirect, render_template, url_for, request, jsonify, flash, make_response, session, Response, stream_with_context
 
 import markdown
 
@@ -8,16 +8,31 @@ from app import api, login_manager
 
 from flask_login import UserMixin, login_required, login_user, logout_user
 
-from application.models import User, Task, Sensor
+from application.models import User, Task, Sensor, CwbModel
 
 from flask_jwt import  current_identity, jwt_required
+
 from collections import Counter
+
+from datetime import datetime, timedelta
+
+from sqlalchemy import desc
+
+from application.util import sort_value_tojson
+
+# https://apscheduler.readthedocs.io/en/latest/ # 定時執行
+#from bs4 import BeautifulSoup
 ### this matplotly start
 """
 @app.before_request
 def user_login():
 """
-    
+'''
+只做資料庫引出與傳送
+
+'''
+
+
 
 @login_manager.user_loader
 def load_user(id):
@@ -36,7 +51,7 @@ def login():
         user = User.query.filter_by(username=form["username"]).first()
         if not user :
             error = {'error':"使用者不存在"}
-            return render_template("login.html",error=error,username=username)
+            return render_template("auth/login.html",error=error,username=username)
         else :
             if not user.check_password(form["password"]):
                 error= {'error':"密碼錯誤"}
@@ -44,9 +59,9 @@ def login():
             else:
                 login_user(user, remember=True)
                 return redirect("/dashboard")
-        return render_template("login.html",username=username)
+        return render_template("auth/login.html",username=username)
         print(user)
-    return render_template("login.html",error=error,username=username)
+    return render_template("auth/login.html",error=error,username=username)
 
 @app.route("/api")
 def api():    
@@ -58,7 +73,6 @@ def api():
 @app.route('/dashboard',methods=["POST","GET"])
 @login_required
 def dashboard():  
-
     tasks = Task.query.all()
     if request.method == "POST":
         print(Task.find_by_id(1).json())
@@ -70,7 +84,7 @@ def dashboard():
     sensor_id = [ ids.sensor_id  for ids in sensor ]
     counter_sensor = Counter(sensor_id )
     return render_template(
-        'layout.html',
+        'iot/iot.html',
         user=user , 
         tasks=tasks, 
         time=time, 
@@ -98,6 +112,33 @@ def page_not_found(e):
 def protected():
     print("this protected is successed!!!")
     return '%s' % current_identity
+
+
+@app.route('/weather',methods=["POST","GET"])
+def weather():
+    '''
+    選取一年內
+    '''
+    # Query all weather data period between two years
+    time_format = "%Y-%m-%d"
+    now = datetime.now().strftime(time_format) 
+    Starttime = datetime.now() - timedelta(days=360)
+
+    minT = CwbModel.query.filter(CwbModel.elementName == "MinT" ).filter(CwbModel.startTime >= Starttime.strftime(time_format)).all()
+    maxT = CwbModel.query.filter(CwbModel.elementName == "MaxT").filter(CwbModel.startTime >= Starttime.strftime(time_format)).all()
+    pop = CwbModel.query.filter(CwbModel.elementName == "PoP").filter(CwbModel.startTime >= Starttime.strftime(time_format)).all()
+ 
+    # 資料庫最新的日期
+    datalast = CwbModel.query.filter(CwbModel.elementName == "MinT").order_by(desc(CwbModel.endTime)).first()
+    bool_update = datetime.now() > datalast.endTime+ timedelta(days=2)
+
+    if request.method == "POST":
+        return render_template('weather/weather.html', minT = minT, max = maxT,now=now ,_updateWeather=bool_update)
+    
+    
+
+
+    return render_template('weather/weather.html', minT =minT, maxT = maxT ,now=now ,_updateWeather=bool_update)
 
 
 '''
@@ -131,3 +172,4 @@ def simple():
     response.headers['Content-Type'] = 'image/png'
     return response
 '''
+

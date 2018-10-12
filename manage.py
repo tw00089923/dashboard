@@ -3,7 +3,7 @@ import os
 from flask_script import Manager
 # writing external scripts https://flask-script.readthedocs.io/en/latest/
 from flask_migrate import Migrate, MigrateCommand
-# 
+# https://flask-migrate.readthedocs.io/en/latest/
 from app import db, app
 
 from application.models import User, Task, Sensor
@@ -29,20 +29,9 @@ def drop_table():
     db.drop_all()
 @manager.command
 def insert_db():
-    me = User(
-        username = "admin",
-        email = "auwit0205@gmail.com",
-        password = "812323"
-    )
-    if User.query.filter_by(email=me.email).first() and User.query.filter_by(username=me.username).first():
-        print("Database is exist")
-        db.session.add(me)
-        db.session.commit()
-  
     task = Task(name = "富邦",classifer = "理財")
     db.session.add(task)
     db.session.commit()
-    db.session.close()
 
 @manager.command
 def insert_db_all():

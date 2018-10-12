@@ -1,10 +1,32 @@
 
 
+{% extends "layout.html" %}
 
 {% block content%}
 
-<div>
-    H1
+<div class="container">
+    <div class="row">
+            <div class="col-md-3 text-white">1</div>
+            <div class="col-md-3 text-white">1</div>
+            <div class="col-md-3 text-white">1</div>
+            <form action="/getcwbdata" method="post">
+                <button name="forwardBtn" type="submit">Forward</button>
+            </form>
+    
+
+    </div>
+    <div class="">
+        <ul>
+                {% for index in cwbapi %}
+            <li class="list-item-group" style="list-style: none;font-size: 12px;">
+                    {{index.locationName}}
+            </li>
+                {% endfor %}
+        </ul>
+    
+           
+    </div>
+    
 </div>
 
 {% endblock %}

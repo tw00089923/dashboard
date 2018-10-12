@@ -1,7 +1,15 @@
 ### <font color="gray">  DashBoard <font>
 
-<img src="static/page.png" width="500">
+<img src="static/readme/homepage.png" width="500">
 <font color="black"> <font>
+
+Build Owner Dashboard
+
+# What is Dashboard ?
+[grafana](https://grafana.com/grafana/download?platform=mac)
+
+
+[famous](https://speckyboy.com/beautifully-designed-admin-dashboards/)
 
 ## Package
 * [Flask](http://flask.pocoo.org)

@@ -2,6 +2,7 @@ from app import db, flask_bcrypt
 from sqlalchemy.sql import expression
 
 class User(db.Model):
+
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True,nullable=False)
@@ -50,6 +51,13 @@ class Task(db.Model):
             "name":self.name,
             "classifer":self.classifer
         }
+    def save_to_db(self):
+        db.session.add(self)
+        db.session.commit()
+    def delete_from_db(self):
+        db.session.delete_from_db(self)
+        db.session.commit()
+
     @classmethod
     def find_by_name(cls,name):
         return cls.query.filter_by(name=name).first()
@@ -71,9 +79,62 @@ class Sensor(db.Model):
         self.humidity =  humidity
         self.sensor_id = sensor_id
         self.time = time
+class CwbModel(db.Model):
+    '''
+    Json 
+    -locationName o
+    -WeatherElement o
+    --elementName o
+    --time <list>
+    ---startTime o
+    ---endTime o
+    ---parameter
+    ----parameterName o
+    ----parameterValue o
 
+    # datasetDescription String 
+    # locationName String
+    # elementName String
+    # parameterName String
+    # parameterValue String 
+    # parameterUnit String 
+    # startTime datetime
+    # endTime datetime
 
+    # html http://opendata.cwb.gov.tw/opendatadoc/MFC/ForecastElement.pdf
+    # Wx 天氣現象
+    # PoP 降雨機率 
+    # CI 舒適度
+    # MinT 最低溫度
+    # MaxT 最高溫度
+    '''
+    __tablename__ = "weather"
+    id = db.Column(db.Integer, primary_key=True)
+    locationName = db.Column(db.String())
+    elementName = db.Column(db.String())
+    startTime = db.Column(db.DateTime)
+    endTime = db.Column(db.DateTime)
+    parameterName  = db.Column(db.String())
+    parameterValue  = db.Column(db.String())
+    parameterUnit = db.Column(db.String())
+    def __init__(self,locationName,elementName,startTime,endTime,parameterName,parameterUnit,parameterValue):
+        self.locationName = locationName
+        self.elementName = elementName
+        self.startTime = startTime
+        self.endTime = endTime
+        self.parameterName = parameterName
+        self.parameterValue = parameterValue
+        self.parameterUnit = parameterUnit
 
+    def __repr__(self):
+        # return script 
+        return "<CwbModel {0.locationName}>".format(self)
+    def __str__(self):
+        # print()
+        return "{0.locationName} type : {0.elementName} : {0.startTime} ~ {0.endTime}, {0.parameterName}".format(self)
+    def save_to_db(self):
+        db.session.add(self)
+        db.session.commit()
 #Integer	an integer
 #String(size)	a string with a maximum length (optional in some databases, e.g. PostgreSQL)
 #Text	some longer unicode text
@@ -98,6 +159,11 @@ class Person(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
     addresses = db.relationship('Address', backref='person', lazy=True)
+    price = db.Column(db.Float(precision=2))
+    store_id = db.Column(db.Integer, db.ForeignKey('stores.id'))
+    store = db.relationship('StoreModel')
+
+
 
 class Address(db.Model):
     id = db.Column(db.Integer, primary_key=True)

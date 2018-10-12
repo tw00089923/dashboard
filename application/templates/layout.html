@@ -1,5 +1,6 @@
 {# myapp/templates/layout.html #}
 
+<!-- Loading macro  -->
 {% from "macros.html" import nav_link,graph_title with context %}
 
 <!DOCTYPE html>
@@ -10,9 +11,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {% endblock metas  %}
+
     <link rel="stylesheet"  type="text/css" href="{{ url_for('.static', filename='css/index.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+    
     <title>{% block title %} IOT SYSTEM {% endblock title %}</title>
     <!-- Jquery 2.1.1 -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
@@ -21,12 +24,13 @@
     <!-- d3 v5 -->
     <script src="https://d3js.org/d3.v5.min.js"></script>
 </head>
+
 <body class="" >
   <div class="container-fluid" id="wrapper" >
     <div class="row">
       <!-- silder 側邊 -->
       <div class="col-md-2 col-sm ml-auto bg-dark d-md-block " id="nav_sidebar">
-        <nav class="mr-2 navbar navbar-expand-lg navbar-light ">
+        <nav class=" navbar navbar-expand-lg navbar-light ">
           <!-- nav 側邊 -->
           <div class="pt-2  navbar-brand d-md-none d-sm-none ">
             <a href="" id="navbar-brand">IOT System</a> </h5> 
@@ -36,15 +40,13 @@
           </button>
           <!-- nav url -->
           <div class="nav flex-column nva-pills collapse navbar-collapse ">
-
            <h5 class="text-white pt-2">  IOT System  </h5> 
-
             <div class="dropdown-divider bg-primary">
               --------------------------------------------
             </div>
             <ul class="nav-link">
-              {% for nav in [ {"name":"Home","url":'#',"icon":"fa fa-home "}, {"name":"Setting","url":'#',"icon":"fa fa-cogs "},{"name":"Api doc","url":'/api',"icon":"fa fa-file "}, {"name":"Support","url":'#',"icon":"fa fa-question-circle"}] %}
-                <li class="" style="list-style: none;font-size: 18px;"> 
+              {% for nav in [ {"name":"Home","url":'/dashboard',"icon":"fa fa-home "},{"name":"weather","url":'/weather',"icon":"fa fa-umbrella"}, {"name":"Setting","url":'/setting',"icon":"fa fa-cogs "},{"name":"Api doc","url":'/api',"icon":"fa fa-file "}, {"name":"Support","url":'#',"icon":"fa fa-question-circle"}] %}
+                <li class="" id="nav_list_item"> 
                     <a class="nav-link p-2 text-white " href="{{nav.url}}" id="v-pills-settings-tab" data-toggle="pill" href="#v-pills-settings" role="tab" aria-controls="v-pills-settings" aria-selected="false">
                         <i class="{{nav.icon}} p-1" id="nav_icon"></i>
                         {{nav.name}}
@@ -54,199 +56,28 @@
              </ul>
           </div>
         </nav>
-        <div>
-          <!--
-             <form class="" action="/dashboard" method="POST" >
-                
-              <button type="submit">
-                add
-              </button>
-            </form>
-          -->
-       
-          
 
-        </div>
         <div class="fixed-bottom ml-2 d-none d-lg-block d-md-none d-sm-none d-xs-none">
           <div class="row">
-            <div class="rounded-circle bg-white ml-4 p-0 " style="height: 25px;width: 25px"> <img src="https://avatars1.githubusercontent.com/u/11885156?s=400&u=a9c3e4590dd78ad9e7a886a28e02cee3b80bb7a0&v=4" alt="" width="25" height="25" class="rounded-circle"></div>
+            <div class="rounded-circle bg-white ml-4 p-0 "  id="maintainer"> 
+              <img src="https://avatars1.githubusercontent.com/u/11885156?s=400&u=a9c3e4590dd78ad9e7a886a28e02cee3b80bb7a0&v=4" alt="" width="25" height="25" class="rounded-circle"></div>
             <p class="text-white small ml-3 mt-1 d-none d-lg-block">  Maintainer : Howard </p>
           </div>
-          
         </div>
       </div>
-
-      <!-- -->
       <div class="col-md  plt-md-3 mlr-md-3" id="content" >
-        <!-- Title navbar -->
-        <div class="row"> 
-          <div class="col-md-3 d-none d-md-block">
-              <h1 class="pl-2 text-info"><a href="/"> DashBoard</a></h1> 
-          </div>
-          <div class="offset-lg-6 offset-xl-7 offset-md-4 d-none d-md-block pt-2 " style=" right: 0px;">
-            {% if current_user.username%}
-            <button class="btn btn-secondary text-white" id="create_item"><a href="/logout">{{current_user.username}}</a></button>
-            {% else %}
-            <button class="btn btn-secondary" id="create_item"> + Create New Case</button>
-            {% endif %}
-          </div>
-        </div>
-        <!--  上部分 區塊 -->
-        <div class="row justify-content-between " id="content_top" >
-          <!-- 上 : 左邊 -->
-          <div class="card col-md m-2 d-block d-xs-none bg-dark" style=" display: block;overflow: hidden ;" > 
-            <div class="row ">
-              <div class="col-4">{{ graph_title("Run time","123","Days","more detail") }}</div>
-              <div class="col-8 bg-dark" >  
-                <div id="myDiv_1"></div>
-              </div>
-            </div> 
-          </div>
-          <!-- 上 : 中間 -->
-          <div class="card col-md m-2 d-block d-xs-none bg-dark" style=" display: block;overflow: hidden ;"> 
-            <div class="row">
-              <div class="col-4">{{ graph_title("Temperature",sensor|sum(attribute='temperature')/ sensor|count,"℃","more detail") }}</div>
-              <div class="col-8" >  
-                <div id="myDiv_2"></div>
-               </div>
-            </div> 
-           </div>
-          <!-- 上 :  右邊 -->
-          <div class="card col-md m-2 d-block d-xs-none bg-dark" style=" display: block;overflow: hidden ;"> 
-            <div class="row">
-              <div class="col-4">{{ graph_title("Humidity",sensor|sum(attribute='humidity')/ sensor|count |int *100,"RH","more detail") }}</div>
-              <div class="col-8" >  
-                <div id="myDiv_3"></div>
-              </div>
-             </div> 
-          </div>
-        </div>
-        <!--  中間部分 區塊 -->
-        <div class="row mt-1 " id="content_middle">
-            <div class="container-fluid">
-                <div class="row">
-                   <!-- middle left part -->
-                  <div class="col-md-3 m-2 card bg-dark ">
-                    <p class="text-white text-center m-1 ">  Distribution </p>
-                    <div id="draw_circle" class="">
-                    </div>
-                  </div>
-                  <!-- middle right part -->
-                  <div class="card col-md m-2 p-0 bg-dark " >                   
-                      <table class="ml-1 table table-borderless table-responsive text-white text-center table-hover" style="overflow:auto;height:220px;" > 
-                          <thead>
-                            <tr>
-                              <th class="" scope="col"> id </th>
-                              <th scope="col"> Temperature </th>
-                              <th scope="col"> Humidity </th>
-                              <th scope="col"> Source </th>
-                            </tr>
-                          </thead>
-                          <tbody  style="height:220px;overflow-y: scroll">
-                              {% for item in sensor %}
-                              <tr>
-                                  <th scope="row" style="width: 25%">{{item.id}}</th>
-                                  <td style="width: 25%">{{item.temperature}} ℃</td>
-                                  <td style="width: 25%">{{item.humidity  |round(1,"floor") * 100 }} RH</td>
-                                  
-                                  <td style="width: 25%">{{item.sensor_id}}</td>
-                              </tr>
-                                {% endfor %}
-                          </tbody>
-                        </table>
-                  </div>
-                </div>
-            </div>
-
-        </div>
-        <!--  下部分 區塊 -->
-        <div class="row mt-1" id="content_bottom">
-            <div class="card col-md m-2 bg-dark " style="height:150px;overflow-y: scroll">
-                <h5 class="text-white text-center mt-1"> Logging </h5>
-                <ul class="list-unstyled bg-dark mp-0" >
-                  {% for i in range(4)%}
-                    <li class="list-group-item bg-dark border-0 text-white " style="padding: 0px;" >
-                        {{i}} :  2018.01.20  id_121   127.1.2.3  Taiwain login --  
-                    </li>
-                  {% endfor %}
-                </ul>
-            </div>
-            <div class="card col-md m-2 bg-dark"style="height: 150px;display: inline-block;overflow-y: scroll">
-
-             
-            
-              <h5 class="text-white text-center mt-1"> Percertage </h5>
-              <div id="myDiv_5">
-
-              </div>
-              
-            </div>
-        </div>
+        {% block content %}
       </div>
+
     </div>
+        {% endblock %}
   </div>
   <!-- footer -->
-
 </body>
+
 {% block javascript %}
-
-
-
-<script type="text/javascript" src="{{ url_for('static', filename='map.js') }}"></script>
-<script type="text/javascript">
-
-
-  $('.fa').on('click',
-    function(){
-      var value = $(this).attr("value");
-      star = $(this).parent().children(('.star'))
-      for(i=0;i<star.length;i++){
-        $(star[i]).removeClass('fa-star');
-        $(star[i]).addClass('fa-star-o');
-      }
-      for(i=0;i<value;i++){
-        $(star[i]).removeClass('fa-star-o');
-        $(star[i]).addClass('fa-star');
-      }
-      var star_p = $(this).parent().attr("value");
-      $("#star_'"+star_p+"' ").attr("value",value);
-    }
-  );
-</script>
-
-<script>
-  $("#create_item").click(function(){
-    $('#nav_sidebar').toggle();
-  });
-</script>
-
-<script>
-  draw_plot1("myDiv_1");
-</script> 
-<script >
-  var x = {{ time | safe}};
-  var y = {{  sensor | map ( attribute = 'temperature' )| list }};
-  drawline( x , y, "#myDiv_2");
-</script>
-<script>
-  var x = {{time|safe}};
-  var y = {{  sensor | map ( attribute = 'humidity' )| list }};
-  drawline( x , y, "#myDiv_3");
-</script>
-<script>
-  var x = {{ sensor_id_count | safe}};   //{{  sensor | map ( attribute =  'sensor_id' )| list }};
-  var y =  {{ sensor_id | safe}};  // {{ sensor_id | safe}}; 
-  console.log(y);
-  drawCircle(x,y,"#draw_circle");
-</script>
-<script>
-  chart_geo("myDiv_4");
-</script>
-
-<script>
- draw_hplot("myDiv_5");
-</script> 
-
+<!-- loading javascript -->
+<script type="text/javascript" src="{{ url_for('static', filename='javascript/map.js') }}"></script>
 
 {% endblock javascript %}
 </html>
